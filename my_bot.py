@@ -1,12 +1,13 @@
 import discord
 from discord.ext import commands
-import mycode
-import random
+from mycode import gen_pass
+import random, os
 
 intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='$', intents=intents)
+
 
 
 
@@ -64,12 +65,15 @@ async def soalmtk(ctx):
     await ctx.send(f"berapa {a} {operator} {b}?")
 
     tebak = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
-    tebak = int(tebak.content)
-    if tebak == correctRes:
-        await ctx.send("Kamu benar!")
+    if tebak.content.isdigit():
+        tebak = int(tebak.content)
+        if tebak == correctRes:
+            await ctx.send("Kamu benar!")
+        else:
+            await ctx.send(f"Maaf kamu salah, jawaban dari {a} {operator} {b} adalah {correctRes}") #f"string" untuk bisa menambahkan variable dengan {var}
     else:
-        await ctx.send(f"Maaf kamu salah, jawaban dari {a} {operator} {b} adalah {correctRes}")
-    
+        await ctx.send("Eror, ulang lagi. Coba masukkan menggunakan angka(1,3,5...)")
+
 
 @bot.command()
 async def guess(ctx):
@@ -83,6 +87,26 @@ async def guess(ctx):
     else:
         await ctx.send(f"Maaf kamu salah, jawabannya {jawaban}")
 
+
+@bot.command()
+async def meme(ctx):
+    folder = os.listdir("gambar_meme")
+    randomImg = random.choice(folder)
+    directory = f'gambar_meme/{randomImg}'
+    with open(directory, "rb") as f:
+        picture = discord.File(f)
+    await ctx.send(file=picture)
+
+@bot.command()
+async def animal(ctx):
+    folder = os.listdir("meme_binatang")
+    randomImg = random.choice(folder)
+    directory = f'meme_binatang/{randomImg}'
+    with open(directory, "rb") as f:
+        picture = discord.File(f)
+    await ctx.send(file=picture)
+
+
 @bot.command()
 async def showcommands(ctx):
     await ctx.send("Ini semua command dari bot ini:")
@@ -92,9 +116,12 @@ async def showcommands(ctx):
         "$generatepass(dengan angka untuk panjang password) : mengenerate password random",
         "$pangkatkan(dengan angka) : mempangkat 2 sebuah angka",
         "$guess : bermain tebak angka dengan bot",
-        "$soalmtk : bot memberikan soal matematika tentang penjumlahan dan pengurangan"
+        "$soalmtk : bot memberikan soal matematika tentang penjumlahan dan pengurangan",
+        "$meme : bot mengunggah sebuah meme random",
+        "$animal : bot mengunggah sebuah meme binatang lucu secara random"
     ]
     for helpcom in list_command:
         await ctx.send(helpcom)
+
 
 bot.run('token here')
